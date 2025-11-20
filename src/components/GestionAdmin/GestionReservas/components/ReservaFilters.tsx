@@ -16,6 +16,9 @@ interface ReservaFiltersProps {
   onChange: <K extends keyof ReservaFiltersState>(field: K, value: ReservaFiltersState[K]) => void;
   onReset: () => void;
   allowCatalogFilters: boolean;
+  lockedFacultadNombre?: string | null;
+  lockedEscuelaNombre?: string | null;
+  isSupervisorWithoutEscuela?: boolean;
 }
 
 const renderOptions = (options: SimpleOption[], placeholder: string) => (
@@ -37,7 +40,10 @@ export const ReservaFilters: React.FC<ReservaFiltersProps> = ({
   escuelas,
   onChange,
   onReset,
-  allowCatalogFilters
+  allowCatalogFilters,
+  lockedFacultadNombre,
+  lockedEscuelaNombre,
+  isSupervisorWithoutEscuela
 }) => {
   const tipos = useMemo(() => catalogos?.tiposEspacio ?? [], [catalogos]);
   const facultades = useMemo(() => catalogos?.facultades ?? [], [catalogos]);
@@ -112,7 +118,24 @@ export const ReservaFilters: React.FC<ReservaFiltersProps> = ({
           </>
         ) : (
           <>
-            {/* BLOQUE ELIMINADO */}
+            <div className="admin-filter-control">
+              <span>Facultad asignada</span>
+              <div className="admin-filter-locked-value">
+                {lockedFacultadNombre ?? "No disponible"}
+              </div>
+            </div>
+
+            <div className="admin-filter-control">
+              <span>Escuela asignada</span>
+              <div className="admin-filter-locked-value">
+                {lockedEscuelaNombre ?? "No disponible"}
+              </div>
+              {isSupervisorWithoutEscuela && (
+                <p className="admin-filter-helper">
+                  Supervisas varias escuelas. Aplica filtros adicionales desde el panel superior.
+                </p>
+              )}
+            </div>
           </>
         )}
 

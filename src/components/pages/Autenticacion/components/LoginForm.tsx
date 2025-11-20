@@ -28,6 +28,7 @@ export const LoginForm: FC<LoginFormProps> = ({
   onPasswordChange,
   onCaptchaInputChange,
   onRefreshCaptcha,
+  onSubmit,
 }) => {
 
   const handleCaptchaChange = (value: string) => {

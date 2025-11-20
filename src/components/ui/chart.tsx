@@ -25,6 +25,17 @@ type ChartContextProps = {
 
 const ChartContext = React.createContext<ChartContextProps | null>(null);
 
+type TooltipPayloadItem = {
+  name?: string;
+  dataKey?: string | number;
+  value?: number;
+  color?: string;
+  payload: Record<string, any>;
+  fill?: string;
+  icon?: React.ComponentType;
+  stroke?: string;
+};
+
 function useChart() {
   const context = React.useContext(ChartContext);
 
@@ -119,8 +130,9 @@ function ChartTooltipContent({
   color,
   nameKey,
   labelKey,
-}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
+}: Omit<React.ComponentProps<typeof RechartsPrimitive.Tooltip>, "payload"> &
   React.ComponentProps<"div"> & {
+    payload?: TooltipPayloadItem[];
     hideLabel?: boolean;
     hideIndicator?: boolean;
     indicator?: "line" | "dot" | "dashed";
@@ -273,7 +285,7 @@ function ChartLegendContent({
         className,
       )}
     >
-      {payload.map((item) => {
+      {payload.map((item: TooltipPayloadItem) => {
         const key = `${nameKey || item.dataKey || "value"}`;
         const itemConfig = getPayloadConfigFromPayload(config, item, key);
 

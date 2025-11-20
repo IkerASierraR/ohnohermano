@@ -1,4 +1,4 @@
-export type LoginType = 'academic' | 'administrative';
+export type LoginType = 'administrative';
 
 export interface BackendPerfil {
   id: string;

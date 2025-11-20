@@ -142,7 +142,7 @@ export const getQrReservasApiUrl = (path: string) =>
 // ==========================
 // Login Type Helper
 // ==========================
-const backendLoginTypes = new Set(["academic", "administrative"]);
+const backendLoginTypes = new Set(["administrative"]);
 
 export const isBackendLoginType = (loginType?: string | null): boolean =>
   !!loginType && backendLoginTypes.has(loginType.toLowerCase());

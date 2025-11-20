@@ -1,10 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import type { LoginType, BackendSession } from '../types';
 import { generateCaptcha } from '../captchaUtils';
 import { autenticacionService } from '../services/autenticacionService';
 
 export const useLogin = (onLoginSuccess?: (session: BackendSession) => void) => {
-  const [selectedType, setSelectedType] = useState<LoginType | null>(null);
+  const selectedType = useMemo<LoginType>(() => 'administrative', []);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [captcha, setCaptcha] = useState<string>(() => generateCaptcha());
@@ -18,30 +18,8 @@ export const useLogin = (onLoginSuccess?: (session: BackendSession) => void) => 
     setCaptchaInput('');
   }, []);
 
-  const handleSelectType = (type: LoginType) => {
-    setSelectedType(type);
-    setIdentifier('');
-    setPassword('');
-    setCaptcha(generateCaptcha());
-    setCaptchaInput('');
-    setError(null);
-    setInfoMessage(null);
-  };
-
-  const handleBack = () => {
-    setSelectedType(null);
-    setIdentifier('');
-    setPassword('');
-    setCaptcha(generateCaptcha());
-    setCaptchaInput('');
-    setError(null);
-    setInfoMessage(null);
-  };
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    if (!selectedType) return;
 
     if (captchaInput.trim().toUpperCase() !== captcha) {
       setError('El código de seguridad es incorrecto. Intenta nuevamente.');
@@ -89,13 +67,6 @@ export const useLogin = (onLoginSuccess?: (session: BackendSession) => void) => 
     }
   };
 
-  const handleGoogleSignIn = useCallback(() => {
-    console.log('Iniciando registro con Google...');
-    
-    // Redirige a Google OAuth - ajustar URL según el backend
-    window.location.href = '/api/auth/google';
-  }, []);
-
   return {
     selectedType,
     identifier,
@@ -109,9 +80,6 @@ export const useLogin = (onLoginSuccess?: (session: BackendSession) => void) => 
     setPassword,
     setCaptchaInput,
     refreshCaptcha,
-    handleSelectType,
-    handleBack,
     handleSubmit,
-    handleGoogleSignIn,
   };
 };

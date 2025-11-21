@@ -153,7 +153,7 @@
 
 .admin-main-container {
   width: 100%;
-  padding: 2rem 1.5rem;
+  padding: 0 1.5rem 2rem 0;
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 1.5rem;
@@ -169,7 +169,7 @@
 
 .admin-sidebar {
   background: #0a245e;
-    border-radius: 0 0.75rem 0.75rem 0;
+  border-radius: 0 0.75rem 0.75rem 0;
   border: none;
   box-shadow: 0 10px 30px -8px rgba(10, 36, 94, 0.5);
   padding: 1.25rem 1.1rem 1.25rem;
@@ -178,6 +178,7 @@
   gap: 1rem;
   color: #f8fafc;
   min-height: auto;
+  margin-top: 0;
 }
 
 .admin-nav {

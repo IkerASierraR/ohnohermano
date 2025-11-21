@@ -213,12 +213,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const [auditTrail, setAuditTrail] = useState<AuditEntry[]>([]);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // CORRECCIÓN AQUÍ
   const moduleDictionary = useMemo(() => {
-    return availableModules.reduce((acc, module) => {
-      acc[module.id] = module;
-      return acc;
-    }, {} as Record<ModuleId, ModuleDefinition>);
+    const dictionary: Record<ModuleId, ModuleDefinition> = {} as Record<ModuleId, ModuleDefinition>;
+    availableModules.forEach((module) => {
+      dictionary[module.id] = module;
+    });
+    return dictionary;
   }, [availableModules]);
 
   const userInitial = useMemo(() => {
@@ -276,14 +276,112 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
   return (
     <div className="admin-dashboard">
-      <header className="admin-header">
-        <div className="admin-header-container">
-          <div className="admin-header-left">
+      <aside className="admin-sidebar">
+        <div className="admin-sidebar-top">
+          <div className="admin-brand">
             <div className="admin-logo">
               <Server className="admin-logo-icon" />
             </div>
             <div>
               <h1 className="admin-title">Panel de Control Administrativo</h1>
+              <p className="admin-subtitle">IntegraUPT - Sistema de Gestion</p>
+            </div>
+          </div>
+
+<div className="admin-user-mini">
+            <div className="admin-user-avatar">
+              <span className="admin-avatar-text">{userInitial}</span>
+            </div>
+            <div className="admin-user-mini-info">
+              <p className="admin-user-name">{user.user_metadata.name}</p>
+              <p className="admin-user-role">
+                {user.user_metadata.role ?? "Administrador del Sistema"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-sidebar-nav-wrapper">
+          <div className="admin-nav-header">
+            <p className="admin-nav-title-text">Gestiones del panel</p>
+            <p className="admin-nav-subtitle-text">
+              Accede a los apartados de administracion
+            </p>
+          </div>
+
+          <nav className="admin-nav">
+            {NAV_GROUPS.map((group) => {
+              const isOpen = openGroups[group.id];
+              return (
+                <div key={group.id} className="admin-nav-group">
+                  <button
+                    className="admin-group-button"
+                    onClick={() => toggleGroup(group.id)}
+                    aria-expanded={isOpen}
+                  >
+                    <span className="admin-group-label">{group.label}</span>
+                    <ChevronDown
+                      className={`admin-group-icon ${isOpen ? "rotated" : ""}`}
+                    />
+                  </button>
+
+                  <div
+                    className={`admin-group-items ${
+                      isOpen ? "group-open" : "group-closed"
+                    }`}
+                  >
+                    {group.modules
+                      .filter((moduleId) =>
+                        availableModules.some((module) => module.id === moduleId)
+                      )
+                      .map((moduleId) => {
+                        const module = availableModules.find(
+                          (item) => item.id === moduleId
+                        );
+                        if (!module) return null;
+                        const Icon = module.icon;
+                        const isActive = activeModule === module.id;
+                        return (
+                          <button
+                            key={module.id}
+                            onClick={() => setActiveModule(module.id)}
+                            className={`admin-nav-button ${
+                              isActive ? "admin-nav-button-active" : ""
+                            }`}
+                            aria-current={isActive ? "page" : undefined}
+                          >
+                            <span
+                              className={`admin-nav-icon admin-module-${module.color}`}
+                            >
+                              <Icon className="admin-nav-icon-svg" />
+                            </span>
+                            <span className="admin-nav-title">{module.name}</span>
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+              );
+            })}
+          </nav>
+        </div>
+
+        <button
+          onClick={handleLogout}
+          className="admin-sidebar-logout"
+          disabled={isLoggingOut}
+        >
+          <LogOut className="admin-logout-icon" />
+          {isLoggingOut ? "Cerrando..." : "Cerrar Sesion"}
+        </button>
+      </aside>
+
+      <div className="admin-main-stack">
+        <header className="admin-header">
+          <div className="admin-header-left">
+            <div>
+              <p className="admin-kicker">Panel principal</p>
+              <h2 className="admin-title">Panel de Control Administrativo</h2>
               <p className="admin-subtitle">IntegraUPT - Sistema de Gestion</p>
             </div>
           </div>
@@ -299,101 +397,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
               <span className="admin-avatar-text">{userInitial}</span>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="admin-main-container">
-        <aside className="admin-sidebar">
-          <div className="admin-sidebar-nav-wrapper">
-            <div className="admin-nav-header">
-              <p className="admin-nav-title-text">Gestiones del panel</p>
-              <p className="admin-nav-subtitle-text">
-                Accede a los apartados de administracion
-              </p>
-            </div>
+                    <div className="admin-panels">
+          <div className="admin-content-shell">
+            <div className="admin-content">
+              {activeModule === "labs" && (
+                <GestionEspacios onAuditLog={addAuditLog} />
+              )}
 
-            <nav className="admin-nav">
-              {NAV_GROUPS.map((group) => {
-                const isOpen = openGroups[group.id];
-                return (
-                  <div key={group.id} className="admin-nav-group">
-                    <button
-                      className="admin-group-button"
-                      onClick={() => toggleGroup(group.id)}
-                      aria-expanded={isOpen}
-                    >
-                      <span className="admin-group-label">{group.label}</span>
-                      <ChevronDown
-                        className={`admin-group-icon ${isOpen ? "rotated" : ""}`}
-                      />
-                    </button>
+              {activeModule === "schedules" && <GestionHorarios />}
 
-                    <div
-                      className={`admin-group-items ${
-                        isOpen ? "group-open" : "group-closed"
-                      }`}
-                    >
-                      {group.modules
-                        .filter((moduleId) =>
-                          availableModules.some((module) => module.id === moduleId)
-                        )
-                        .map((moduleId) => {
-                          const module = availableModules.find(
-                            (item) => item.id === moduleId
-                          );
-                          if (!module) return null;
-                          const Icon = module.icon;
-                          const isActive = activeModule === module.id;
-                          return (
-                            <button
-                              key={module.id}
-                              onClick={() => setActiveModule(module.id)}
-                              className={`admin-nav-button ${
-                                isActive ? "admin-nav-button-active" : ""
-                              }`}
-                              aria-current={isActive ? "page" : undefined}
-                            >
-                              <span
-                                className={`admin-nav-icon admin-module-${module.color}`}
-                              >
-                                <Icon className="admin-nav-icon-svg" />
-                              </span>
-                              <span className="admin-nav-title">{module.name}</span>
-                            </button>
-                          );
-                        })}
-                    </div>
-                  </div>
-                );
-              })}
-            </nav>
-          </div>
-          
-          <button
-            onClick={handleLogout}
-            className="admin-sidebar-logout"
-            disabled={isLoggingOut}
-          >
-            <LogOut className="admin-logout-icon" />
-            {isLoggingOut ? "Cerrando..." : "Cerrar Sesion"}
-          </button>
-        </aside>
+              {activeModule === "sanctions" && (
+                <GestionSanciones onAuditLog={addAuditLog} currentUser={user} />
+              )}
 
-        <div className="admin-main-content">
-          <div className="admin-content">
-            {activeModule === "labs" && (
-              <GestionEspacios onAuditLog={addAuditLog} />
-            )}
-
-            {activeModule === "schedules" && <GestionHorarios />}
-
-            {activeModule === "sanctions" && (
-              <GestionSanciones onAuditLog={addAuditLog} currentUser={user} />
-            )}
-
-            {activeModule === "reservas" && (
-              <GestionReservas onAuditLog={addAuditLog} currentUser={user} />
-            )}
+              {activeModule === "reservas" && (
+                <GestionReservas onAuditLog={addAuditLog} currentUser={user} />
+              )}
 
             {activeModule === "users" && (
               <GestionUsuarios onAuditLog={addAuditLog} />
@@ -407,10 +428,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
               <GestionReportes onAuditLog={addAuditLog} />
             )}
 
-            {activeModule === "audit" && (
-              <GestionAuditoria onAuditLog={addAuditLog} />
-            )}
-          </div>
+              {activeModule === "audit" && (
+                <GestionAuditoria onAuditLog={addAuditLog} />
+              )}
+            </div>
 
           <div className="admin-activity-panel">
             <div className="admin-activity-header">
@@ -422,7 +443,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
               </div>
             </div>
 
-          {auditTrail.length === 0 ? (
+            {auditTrail.length === 0 ? (
               <p className="admin-activity-empty">
                 Aun no se registran movimientos en esta sesion.
               </p>

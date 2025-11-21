@@ -304,75 +304,98 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
       <div className="admin-main-container">
         <aside className="admin-sidebar">
-          <div className="admin-brand">
-            <img
-              src="/upt-shield.png"
-              alt="Escudo UPT"
-              className="admin-brand-logo"
-            />
-            <div className="admin-brand-text">
-              <p className="admin-brand-title">Control Admin</p>
-              <p className="admin-brand-subtitle">
-                IntegraUPT - Sistema de Gestion
-              </p>
+          <div className="admin-sidebar-top">
+            <div className="admin-sidebar-profile">
+              <div className="admin-sidebar-avatar">
+                <span className="admin-avatar-text">{userInitial}</span>
+              </div>
+              <div>
+                <p className="admin-sidebar-name">{user.user_metadata.name}</p>
+                <p className="admin-sidebar-role">
+                  {user.user_metadata.role ?? "Administrador del Sistema"}
+                </p>
+              </div>
+            </div>
+
+            <div className="admin-brand">
+              <img
+                src="/upt-shield.png"
+                alt="Escudo UPT"
+                className="admin-brand-logo"
+              />
+              <div className="admin-brand-text">
+                <p className="admin-brand-title">Control Admin</p>
+                <p className="admin-brand-subtitle">
+                  IntegraUPT - Sistema de Gestion
+                </p>
+              </div>
             </div>
           </div>
 
-          <nav className="admin-nav">
-            {NAV_GROUPS.map((group) => {
-              const isOpen = openGroups[group.id];
-              return (
-                <div key={group.id} className="admin-nav-group">
-                  <button
-                    className="admin-group-button"
-                    onClick={() => toggleGroup(group.id)}
-                    aria-expanded={isOpen}
-                  >
-                    <span className="admin-group-label">{group.label}</span>
-                    <ChevronDown
-                      className={`admin-group-icon ${isOpen ? "rotated" : ""}`}
-                    />
-                  </button>
+          <div className="admin-sidebar-nav-wrapper">
+            <div className="admin-nav-header">
+              <p className="admin-nav-title-text">Gestiones del panel</p>
+              <p className="admin-nav-subtitle-text">
+                Accede a los apartados de administracion
+              </p>
+            </div>
 
-                  <div
-                    className={`admin-group-items ${
-                      isOpen ? "group-open" : "group-closed"
-                    }`}
-                  >
-                    {group.modules
-                      .filter((moduleId) =>
-                        availableModules.some((module) => module.id === moduleId)
-                      )
-                      .map((moduleId) => {
-                        const module = availableModules.find(
-                          (item) => item.id === moduleId
-                        );
-                        if (!module) return null;
-                        const Icon = module.icon;
-                        const isActive = activeModule === module.id;
-                        return (
-                          <button
-                            key={module.id}
-                            onClick={() => setActiveModule(module.id)}
-                            className={`admin-nav-button ${
-                              isActive ? "admin-nav-button-active" : ""
-                            }`}
-                            aria-current={isActive ? "page" : undefined}
-                          >
-                            <span
-                              className={`admin-nav-icon admin-module-${module.color}`}
+            <nav className="admin-nav">
+              {NAV_GROUPS.map((group) => {
+                const isOpen = openGroups[group.id];
+                return (
+                  <div key={group.id} className="admin-nav-group">
+                    <button
+                      className="admin-group-button"
+                      onClick={() => toggleGroup(group.id)}
+                      aria-expanded={isOpen}
+                    >
+                      <span className="admin-group-label">{group.label}</span>
+                      <ChevronDown
+                        className={`admin-group-icon ${isOpen ? "rotated" : ""}`}
+                      />
+                    </button>
+
+                    <div
+                      className={`admin-group-items ${
+                        isOpen ? "group-open" : "group-closed"
+                      }`}
+                    >
+                      {group.modules
+                        .filter((moduleId) =>
+                          availableModules.some((module) => module.id === moduleId)
+                        )
+                        .map((moduleId) => {
+                          const module = availableModules.find(
+                            (item) => item.id === moduleId
+                          );
+                          if (!module) return null;
+                          const Icon = module.icon;
+                          const isActive = activeModule === module.id;
+                          return (
+                            <button
+                              key={module.id}
+                              onClick={() => setActiveModule(module.id)}
+                              className={`admin-nav-button ${
+                                isActive ? "admin-nav-button-active" : ""
+                              }`}
+                              aria-current={isActive ? "page" : undefined}
                             >
-                              <Icon className="admin-nav-icon-svg" />
-                            </span>
-                            <span className="admin-nav-title">{module.name}</span>
-                          </button>
-                        );
-                      })}
+                              <span
+                                className={`admin-nav-icon admin-module-${module.color}`}
+                              >
+                                <Icon className="admin-nav-icon-svg" />
+                              </span>
+                              <span className="admin-nav-title">{module.name}</span>
+                            </button>
+                          );
+                        })}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </nav>
+                );
+              })}
+            </nav>
+          </div>
           
           <button
             onClick={handleLogout}

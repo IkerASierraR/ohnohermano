@@ -268,107 +268,121 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       </header>
 
       <div className="admin-main-container">
-        <div className="admin-modules-grid">
-          {availableModules.map((module) => {
-            const Icon = module.icon;
-            const isActive = activeModule === module.id;
-            return (
-              <button
-                key={module.id}
-                onClick={() => setActiveModule(module.id)}
-                className={`admin-module-card ${
-                  isActive ? "admin-module-active" : ""
-                }`}
-              >
-                <div className={`admin-module-icon admin-module-${module.color}`}>
-                  <Icon className="admin-module-icon-svg" />
-                </div>
-                <h3 className="admin-module-title">{module.name}</h3>
-                <p className="admin-module-description">
-                  {module.description}
-                </p>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="admin-content">
-          {activeModule === "labs" && (
-            <GestionEspacios onAuditLog={addAuditLog} />
-          )}
-
-          {activeModule === "schedules" && <GestionHorarios />}
-
-          {activeModule === "sanctions" && (
-            <GestionSanciones onAuditLog={addAuditLog} currentUser={user} />
-          )}
-
-          {activeModule === "reservas" && (
-            <GestionReservas onAuditLog={addAuditLog} currentUser={user} />
-          )}
-
-          {activeModule === "users" && (
-            <GestionUsuarios onAuditLog={addAuditLog} />
-          )}
-
-          {activeModule === "incidencias" && (
-            <GestionIncidencias onAuditLog={addAuditLog} currentUser={user} />
-          )}
-
-          {activeModule === "reports" && (
-            <GestionReportes onAuditLog={addAuditLog} />
-          )}
-
-          {activeModule === "audit" && (
-                  <GestionAuditoria onAuditLog={addAuditLog} />
-                )}
-        </div>
-
-        <div className="admin-activity-panel">
-          <div className="admin-activity-header">
-            <div>
-              <h2 className="admin-title">Actividad reciente</h2>
-              <p className="admin-subtitle">
-                Eventos generados por los modulos del panel
-              </p>
-            </div>
+        <aside className="admin-sidebar">
+          <div className="admin-sidebar-header">
+            <p className="admin-sidebar-label">Modulos</p>
+            <p className="admin-sidebar-helper">
+              Selecciona un modulo para gestionarlo
+            </p>
           </div>
 
-          {auditTrail.length === 0 ? (
-            <p className="admin-activity-empty">
-              Aun no se registran movimientos en esta sesion.
-            </p>
-          ) : (
-            <ul className="admin-activity-list">
-              {auditTrail.map((entry) => {
-                const moduleMeta = moduleDictionary[entry.module];
-                return (
-                  <li key={entry.id} className="admin-activity-item">
-                    <div>
-                      <p className="admin-activity-message">
-                        {entry.message}
-                      </p>
-                      {entry.detail && (
-                        <p className="admin-activity-detail">
-                          {entry.detail}
-                        </p>
-                      )}
-                      <span className="admin-activity-time">
-                        {formatTimestamp(entry.createdAt)}
-                      </span>
-                    </div>
-                    <span
-                      className={`admin-activity-badge admin-activity-badge-${
-                        moduleMeta?.color ?? "blue"
-                      }`}
-                    >
-                      {moduleMeta?.name ?? entry.module}
+<nav className="admin-nav">
+            {availableModules.map((module) => {
+              const Icon = module.icon;
+              const isActive = activeModule === module.id;
+              return (
+                <button
+                  key={module.id}
+                  onClick={() => setActiveModule(module.id)}
+                  className={`admin-nav-button ${
+                    isActive ? "admin-nav-button-active" : ""
+                  }`}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  <span className={`admin-nav-icon admin-module-${module.color}`}>
+                    <Icon className="admin-nav-icon-svg" />
+                  </span>
+                  <div className="admin-nav-text">
+                    <span className="admin-nav-title">{module.name}</span>
+                    <span className="admin-nav-description">
+                      {module.description}
                     </span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+                  </div>
+                </button>
+              );
+            })}
+          </nav>
+        </aside>
+
+        <div className="admin-main-content">
+          <div className="admin-content">
+            {activeModule === "labs" && (
+              <GestionEspacios onAuditLog={addAuditLog} />
+            )}
+
+            {activeModule === "schedules" && <GestionHorarios />}
+
+            {activeModule === "sanctions" && (
+              <GestionSanciones onAuditLog={addAuditLog} currentUser={user} />
+            )}
+
+            {activeModule === "reservas" && (
+              <GestionReservas onAuditLog={addAuditLog} currentUser={user} />
+            )}
+
+            {activeModule === "users" && (
+              <GestionUsuarios onAuditLog={addAuditLog} />
+            )}
+
+            {activeModule === "incidencias" && (
+              <GestionIncidencias onAuditLog={addAuditLog} currentUser={user} />
+            )}
+
+            {activeModule === "reports" && (
+              <GestionReportes onAuditLog={addAuditLog} />
+            )}
+
+            {activeModule === "audit" && (
+              <GestionAuditoria onAuditLog={addAuditLog} />
+            )}
+          </div>
+
+          <div className="admin-activity-panel">
+            <div className="admin-activity-header">
+              <div>
+                <h2 className="admin-title">Actividad reciente</h2>
+                <p className="admin-subtitle">
+                  Eventos generados por los modulos del panel
+                </p>
+              </div>
+            </div>
+
+          {auditTrail.length === 0 ? (
+              <p className="admin-activity-empty">
+                Aun no se registran movimientos en esta sesion.
+              </p>
+            ) : (
+              <ul className="admin-activity-list">
+                {auditTrail.map((entry) => {
+                  const moduleMeta = moduleDictionary[entry.module];
+                  return (
+                    <li key={entry.id} className="admin-activity-item">
+                      <div>
+                        <p className="admin-activity-message">
+                          {entry.message}
+                        </p>
+                      {entry.detail && (
+                          <p className="admin-activity-detail">
+                            {entry.detail}
+                          </p>
+                        )}
+                        <span className="admin-activity-time">
+                          {formatTimestamp(entry.createdAt)}
+                        </span>
+                      </div>
+                      <span
+                        className={`admin-activity-badge admin-activity-badge-${
+                          moduleMeta?.color ?? "blue"
+                        }`}
+                      >
+                        {moduleMeta?.name ?? entry.module}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     </div>

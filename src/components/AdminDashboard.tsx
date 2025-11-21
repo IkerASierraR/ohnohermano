@@ -304,34 +304,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
       <div className="admin-main-container">
         <aside className="admin-sidebar">
-          <div className="admin-sidebar-top">
-            <div className="admin-sidebar-profile">
-              <div className="admin-sidebar-avatar">
-                <span className="admin-avatar-text">{userInitial}</span>
-              </div>
-              <div>
-                <p className="admin-sidebar-name">{user.user_metadata.name}</p>
-                <p className="admin-sidebar-role">
-                  {user.user_metadata.role ?? "Administrador del Sistema"}
-                </p>
-              </div>
-            </div>
-
-            <div className="admin-brand">
-              <img
-                src="/upt-shield.png"
-                alt="Escudo UPT"
-                className="admin-brand-logo"
-              />
-              <div className="admin-brand-text">
-                <p className="admin-brand-title">Control Admin</p>
-                <p className="admin-brand-subtitle">
-                  IntegraUPT - Sistema de Gestion
-                </p>
-              </div>
-            </div>
-          </div>
-
           <div className="admin-sidebar-nav-wrapper">
             <div className="admin-nav-header">
               <p className="admin-nav-title-text">Gestiones del panel</p>

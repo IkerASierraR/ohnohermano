@@ -10,7 +10,8 @@ import {
   ShieldCheck,
   BarChart3,
   Ban,
-  AlertCircle
+  AlertCircle,
+  ChevronDown
 } from "lucide-react";
 import "./../styles/AdminDashboard.css";
 import {
@@ -42,6 +43,12 @@ interface ModuleDefinition {
   description: string;
   icon: LucideIcon;
   color: "blue" | "green" | "indigo" | "purple" | "orange" | "red";
+}
+
+interface NavGroup {
+  id: "reservas" | "gestiones" | "reportes";
+  label: string;
+  modules: ModuleId[];
 }
 
 interface AuditEntry {
@@ -134,6 +141,24 @@ const SUPERVISOR_ALLOWED_MODULES: ModuleId[] = [
   "incidencias"
 ];
 
+const NAV_GROUPS: NavGroup[] = [
+  {
+    id: "reservas",
+    label: "Reservas",
+    modules: ["reservas", "incidencias", "sanctions"]
+  },
+  {
+    id: "gestiones",
+    label: "Gestiones",
+    modules: ["labs", "schedules", "users"]
+  },
+  {
+    id: "reportes",
+    label: "Reportes",
+    modules: ["reports", "audit"]
+  }
+];
+
 const formatTimestamp = (isoDate: string): string => {
   try {
     return new Intl.DateTimeFormat("es-PE", {
@@ -165,7 +190,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     return MODULES;
   }, [isSupervisor]);
 
-  const [activeModule, setActiveModule] = useState<ModuleId>("labs");
+  const [activeModule, setActiveModule] = useState<ModuleId>("reservas");
+
+  const [openGroups, setOpenGroups] = useState<Record<NavGroup["id"], boolean>>(
+    () =>
+      NAV_GROUPS.reduce(
+        (acc, group) => ({
+          ...acc,
+          [group.id]: true
+        }),
+        {} as Record<NavGroup["id"], boolean>
+      )
+  );
 
   useEffect(() => {
     if (!availableModules.some((module) => module.id === activeModule)) {
@@ -231,6 +267,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     }
   }, [isLoggingOut, shouldNotifyBackend, user.id]);
 
+    const toggleGroup = useCallback((groupId: NavGroup["id"]) => {
+    setOpenGroups((prev) => ({
+      ...prev,
+      [groupId]: !prev[groupId]
+    }));
+  }, []);
+
   return (
     <div className="admin-dashboard">
       <header className="admin-header">
@@ -255,53 +298,90 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
             <div className="admin-user-avatar">
               <span className="admin-avatar-text">{userInitial}</span>
             </div>
-            <button
-              onClick={handleLogout}
-              className="admin-logout-btn"
-              disabled={isLoggingOut}
-            >
-              <LogOut className="admin-logout-icon" />
-              {isLoggingOut ? "Cerrando..." : "Cerrar Sesion"}
-            </button>
           </div>
         </div>
       </header>
 
       <div className="admin-main-container">
         <aside className="admin-sidebar">
-          <div className="admin-sidebar-header">
-            <p className="admin-sidebar-label">Modulos</p>
-            <p className="admin-sidebar-helper">
-              Selecciona un modulo para gestionarlo
-            </p>
+          <div className="admin-brand">
+            <img
+              src="/upt-shield.png"
+              alt="Escudo UPT"
+              className="admin-brand-logo"
+            />
+            <div className="admin-brand-text">
+              <p className="admin-brand-title">Control Admin</p>
+              <p className="admin-brand-subtitle">
+                IntegraUPT - Sistema de Gestion
+              </p>
+            </div>
           </div>
 
-<nav className="admin-nav">
-            {availableModules.map((module) => {
-              const Icon = module.icon;
-              const isActive = activeModule === module.id;
+          <nav className="admin-nav">
+            {NAV_GROUPS.map((group) => {
+              const isOpen = openGroups[group.id];
               return (
-                <button
-                  key={module.id}
-                  onClick={() => setActiveModule(module.id)}
-                  className={`admin-nav-button ${
-                    isActive ? "admin-nav-button-active" : ""
-                  }`}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  <span className={`admin-nav-icon admin-module-${module.color}`}>
-                    <Icon className="admin-nav-icon-svg" />
-                  </span>
-                  <div className="admin-nav-text">
-                    <span className="admin-nav-title">{module.name}</span>
-                    <span className="admin-nav-description">
-                      {module.description}
-                    </span>
+                <div key={group.id} className="admin-nav-group">
+                  <button
+                    className="admin-group-button"
+                    onClick={() => toggleGroup(group.id)}
+                    aria-expanded={isOpen}
+                  >
+                    <span className="admin-group-label">{group.label}</span>
+                    <ChevronDown
+                      className={`admin-group-icon ${isOpen ? "rotated" : ""}`}
+                    />
+                  </button>
+
+                  <div
+                    className={`admin-group-items ${
+                      isOpen ? "group-open" : "group-closed"
+                    }`}
+                  >
+                    {group.modules
+                      .filter((moduleId) =>
+                        availableModules.some((module) => module.id === moduleId)
+                      )
+                      .map((moduleId) => {
+                        const module = availableModules.find(
+                          (item) => item.id === moduleId
+                        );
+                        if (!module) return null;
+                        const Icon = module.icon;
+                        const isActive = activeModule === module.id;
+                        return (
+                          <button
+                            key={module.id}
+                            onClick={() => setActiveModule(module.id)}
+                            className={`admin-nav-button ${
+                              isActive ? "admin-nav-button-active" : ""
+                            }`}
+                            aria-current={isActive ? "page" : undefined}
+                          >
+                            <span
+                              className={`admin-nav-icon admin-module-${module.color}`}
+                            >
+                              <Icon className="admin-nav-icon-svg" />
+                            </span>
+                            <span className="admin-nav-title">{module.name}</span>
+                          </button>
+                        );
+                      })}
                   </div>
-                </button>
+                </div>
               );
             })}
           </nav>
+          
+          <button
+            onClick={handleLogout}
+            className="admin-sidebar-logout"
+            disabled={isLoggingOut}
+          >
+            <LogOut className="admin-logout-icon" />
+            {isLoggingOut ? "Cerrando..." : "Cerrar Sesion"}
+          </button>
         </aside>
 
         <div className="admin-main-content">
